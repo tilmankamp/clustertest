@@ -2,7 +2,7 @@
 
 ps_count=1
 worker_count=2
-prefix="_t5_"
+prefix="_t6_"
 
 index=0
 while [ "$index" -lt "$worker_count" ]
@@ -17,7 +17,7 @@ do
   fi
   cd $name
   git fetch --all
-  git reset --hard origin/master
+  git rebase origin/master
   cp riseml.yml.template riseml.yml
   sed -i -e 's/PARAMS/--job_name="worker" --task_index='$index'/g' riseml.yml
   git add .
@@ -41,7 +41,7 @@ do
   fi
   cd $name
   git fetch --all
-  git reset --hard origin/master
+  git rebase origin/master
   cp riseml.yml.template riseml.yml
   sed -i -e 's/PARAMS/--job_name="ps" --task_index='$index'/g' riseml.yml
   git add .
