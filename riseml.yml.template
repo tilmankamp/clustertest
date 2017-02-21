@@ -4,4 +4,4 @@ service:
     commands:
         - pip install numpy
         - pip install tensorflow-gpu
-        - python example.py PARAMS
+        - python example.py PARAMS 

@@ -1,15 +1,26 @@
-#!/usr/bin/bash
+#!/bin/bash
 
-worker_count=1
+ps_count=1
 worker_count=2
-index=0
+prefix="_t5_"
 
+index=0
 while [ "$index" -lt "$worker_count" ]
 do
-  rm -f worker_$index
-  git clone `git remote get-url origin` worker_$index
-  cd worker_$index
+  name="worker$prefix$index"
+  echo $name
+  if [ ! -d "$name" ]; then
+    git clone `git remote get-url origin` $name
+    cd $name
+    riseml create
+    cd ..
+  fi
+  cd $name
+  git fetch --all
+  git reset --hard origin/master
+  cp riseml.yml.template riseml.yml
   sed -i -e 's/PARAMS/--job_name="worker" --task_index='$index'/g' riseml.yml
+  git add .
   git commit -m update
   riseml push
   cd ..
@@ -17,12 +28,23 @@ do
   ((index++))
 done
 
+index=0
 while [ "$index" -lt "$ps_count" ]
 do
-  rm -f ps_$index
-  git clone `git remote get-url origin` ps_$index
-  cd ps_$index
+  name="ps$prefix$index"
+  echo $name
+  if [ ! -d "$name" ]; then
+    git clone `git remote get-url origin` $name
+    cd $name
+    riseml create
+    cd ..
+  fi
+  cd $name
+  git fetch --all
+  git reset --hard origin/master
+  cp riseml.yml.template riseml.yml
   sed -i -e 's/PARAMS/--job_name="ps" --task_index='$index'/g' riseml.yml
+  git add .
   git commit -m update
   riseml push
   cd ..
