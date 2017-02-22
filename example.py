@@ -26,17 +26,19 @@ tf.app.flags.DEFINE_integer("ps_count", 1, "Amount of workers")
 FLAGS = tf.app.flags.FLAGS
 
 # cluster specification
-parameter_servers = ["%s%d.riseml.io:443" % (FLAGS.task_prefix, i) for i in range(FLAGS.ps_count)]
-workers = ["%s%d.riseml.io:443" % (FLAGS.task_prefix, FLAGS.ps_count + i) for i in range(FLAGS.worker_count)]
-
-cluster = tf.train.ClusterSpec({"ps":parameter_servers, "worker":workers})
+parameter_servers = ["https://%s%d.riseml.io" % (FLAGS.task_prefix, i) for i in range(FLAGS.ps_count)]
+workers = ["https://%s%d.riseml.io" % (FLAGS.task_prefix, FLAGS.ps_count + i) for i in range(FLAGS.worker_count)]
 
 if FLAGS.task_index >= FLAGS.ps_count:
 	task_index = FLAGS.task_index - FLAGS.ps_count
 	job_name = 'worker'
+	parameter_servers[task_index] = "localhost:%d" % int(os.environ['PORT'])
 else:
 	task_index = FLAGS.task_index
 	job_name = 'ps'
+	parameter_servers[task_index] = "localhost:%d" % int(os.environ['PORT'])
+
+cluster = tf.train.ClusterSpec({ "ps": parameter_servers, "worker": workers })
 
 # start a server for a specific task
 server = tf.train.Server(cluster, job_name=job_name, task_index=task_index)
@@ -61,9 +63,10 @@ elif job_name == "worker":
 		cluster=cluster)):
 
 		# count the number of updates
-		global_step = tf.get_variable('global_step', [],
-																initializer = tf.constant_initializer(0),
-																trainable = False)
+		global_step = tf.get_variable('global_step',
+									  [],
+									  initializer = tf.constant_initializer(0),
+									  trainable = False)
 
 		# input images
 		with tf.name_scope('input'):
@@ -102,11 +105,10 @@ elif job_name == "worker":
 			grad_op = tf.train.GradientDescentOptimizer(learning_rate)
 			'''
 			rep_op = tf.train.SyncReplicasOptimizer(grad_op,
-																					replicas_to_aggregate=len(workers),
- 																					replica_id=task_index,
- 																					total_num_replicas=len(workers),
- 																					use_locking=True
- 																					)
+													replicas_to_aggregate=len(workers),
+													replica_id=task_index,
+													total_num_replicas=len(workers),
+													use_locking=True)
  			train_op = rep_op.minimize(cross_entropy, global_step=global_step)
  			'''
 			train_op = grad_op.minimize(cross_entropy, global_step=global_step)

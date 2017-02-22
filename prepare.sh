@@ -3,7 +3,7 @@
 ps_count=1
 worker_count=2
 prefix="exclu-1-"
-count=((worker_count+ps_count))
+count=$((worker_count + ps_count))
 
 index=0
 while [ "$index" -lt "$count" ]
