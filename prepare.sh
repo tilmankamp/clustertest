@@ -2,7 +2,7 @@
 
 ps_count=1
 worker_count=2
-prefix="exclu-2-"
+prefix="exclu-3-"
 count=$((worker_count + ps_count))
 
 index=0
