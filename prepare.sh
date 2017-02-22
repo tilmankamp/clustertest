@@ -22,7 +22,7 @@ do
   sed -i -e 's/PARAMS/--worker_count '$worker_count' --ps_count '$ps_count' --task_prefix '$prefix' --task_index='$index'/g' riseml.yml
   git add .
   git commit -m update
-  riseml push $name
+  riseml push $name 2>&1 | sed "s/^/[task "$index"] /" &
   cd ..
   echo "Started task $index."
   ((index++))

@@ -33,7 +33,7 @@ workers = ["https://%s%d.riseml.io" % (FLAGS.task_prefix, FLAGS.ps_count + i) fo
 if FLAGS.task_index >= FLAGS.ps_count:
 	task_index = FLAGS.task_index - FLAGS.ps_count
 	job_name = 'worker'
-	parameter_servers[task_index] = "localhost:%d" % int(os.environ['PORT'])
+	workers[task_index] = "localhost:%d" % int(os.environ['PORT'])
 else:
 	task_index = FLAGS.task_index
 	job_name = 'ps'
