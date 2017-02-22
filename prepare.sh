@@ -2,7 +2,7 @@
 
 ps_count=1
 worker_count=2
-prefix="exclu-1-"
+prefix="exclu-2-"
 count=$((worker_count + ps_count))
 
 index=0
@@ -11,15 +11,14 @@ do
   name="$prefix$index"
   echo $name
   if [ ! -d "$name" ]; then
-    git clone `git remote get-url origin` $name
+    mkdir $name
     cd $name
+    git init
     riseml create
     cd ..
   fi
   cd $name
-  git fetch --all
-  git rebase origin/master
-  cp riseml.yml.template riseml.yml
+  cp -r ../node/* .
   sed -i -e 's/PARAMS/--worker_count '$worker_count' --ps_count '$ps_count' --task_prefix '$prefix' --task_index='$index'/g' riseml.yml
   git add .
   git commit -m update
