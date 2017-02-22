@@ -17,6 +17,7 @@ from __future__ import print_function
 import tensorflow as tf
 import sys
 import time
+import os
 
 # input flags
 tf.app.flags.DEFINE_string("task_prefix", "", "A unique task name prefix")
